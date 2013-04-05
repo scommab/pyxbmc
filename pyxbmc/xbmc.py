@@ -126,10 +126,6 @@ def nav_menu():
   return make_call("Input.ContextMenu")
 
 @xbmc_call
-def nav_execute():
-  return make_call("Input.ExecuteAction")
-
-@xbmc_call
 def nav_select():
   return make_call("Input.Select")
 
@@ -144,6 +140,10 @@ def nav_show_osd():
 @xbmc_call
 def nav_send_text(text, complete=False):
   return make_call("Input.SendText", {"text": text, "done": complete})
+
+@xbmc_call
+def nav_execute(action):
+  return make_call("Input.ExecuteAction", {"action": action})
 
 def make_youtube_link(video_id):
   return "plugin://plugin.video.youtube/" + \
