@@ -1,2 +1,2 @@
 
-from xbmc_caller import set_url
+from xbmc_caller import set_host

@@ -4,9 +4,9 @@ import json
 url = None
 
 
-def set_url(hostname, port):
+def set_host(host):
   global url
-  url = "http://%s:%s/jsonrpc" % (hostname, port)
+  url = "http://%s/jsonrpc" % (host)
 
 
 def call_XBMC(payload):
