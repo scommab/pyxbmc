@@ -1,11 +1,5 @@
-
-import requests
-import urllib
-
+import urllib2
 import json
-import sys
-import urlparse
-import pprint
 
 url = None
 
@@ -18,9 +12,10 @@ def call_XBMC(payload):
   if url is None:
     print "!!! set the url var first"
     return {}
-  headers = { "Content-Type":"application/json" }
-  p = requests.post(url, data=json.dumps(payload), headers=headers)
-  return json.loads(p.content)
+  req = urllib2.Request(url)
+  req.add_header("Content-Type", "application/json")
+  res = urllib2.urlopen(req, data=json.dumps(payload))
+  return json.loads(res.read())
 
 def xbmc_call(fn):
   def wrapped(*arg, **kwargs):
