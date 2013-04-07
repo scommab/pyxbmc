@@ -4,22 +4,28 @@ import json
 
 
 def make_youtube_link(video_id):
+  """Takes a video_id and returns an xbmc youtube link"""
   return "plugin://plugin.video.youtube/" + \
          "?action=play_video&videoid=%s" % video_id
 
 
 class XBMC(object):
+  """XBMC Connection Handler."""
+
   def __init__(self, host):
+    """takes XBMC host"""
     self.host = host
     self.url = "http://%s/jsonrpc" % self.host
 
   def call_XBMC(self, payload):
+    """Sends payload to XBMC."""
     req = urllib2.Request(self.url)
     req.add_header("Content-Type", "application/json")
     res = urllib2.urlopen(req, data=json.dumps(payload))
     return json.loads(res.read())
 
   def make_call(self, method, params=None):
+    """Make a standard xbmc call object."""
     r = {"jsonrpc": "2.0", "method": method, "id": 1}
     if not params is None:
       r["params"] = params
@@ -136,6 +142,7 @@ class XBMC(object):
     return self.make_call("Input.ExecuteAction", {"action": action})
 
   # composite methods
+
   def play_youtube(self, video_id):
     if "http" in video_id:
       # decode youtube url
