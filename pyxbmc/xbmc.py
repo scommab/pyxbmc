@@ -46,21 +46,58 @@ class XBMC(object):
   def get_movies(self):
     return self.make_call("VideoLibrary.GetMovies")
 
+  def get_movie_details(self, movie_id, properties=None):
+    if properties is None:
+      properties = [
+          "plotoutline", "cast", "plot",
+          "mpaa", "rating",
+          "tagline", "art"
+      ]
+    return self.make_call("VideoLibrary.GetMovieDetails", {
+      "movieid": movie_id,
+      "properties": properties
+    })
+
   def get_tv_shows(self):
     return self.make_call("VideoLibrary.GetTVShows")
 
-  def get_tv_seasons(self, tvshowid):
+  def get_tv_show_details(self, tvshow_id, properties=None):
+    if properties is None:
+      properties = [
+          "cast", "genre", "plot",
+          "mpaa", "rating",
+          "tag", "art"
+      ]
+    return self.make_call("VideoLibrary.GetTVShowDetails", {
+      "tvshowid": tvshow_id,
+      "properties": properties
+    })
+
+  def get_seasons(self, tvshowid):
     return self.make_call("VideoLibrary.GetSeasons", {
       "tvshowid": tvshowid
     })
 
-  def get_tv_episodes(self, tvshowid=None, season=None):
+  def get_episodes(self, tvshowid=None, season=None):
     params = {}
     if not tvshowid is None:
       params["tvshowid"] = tvshowid
     if not season is None:
       params["season"] = season
     return self.make_call("VideoLibrary.GetEpisodes", params)
+
+  def get_episode_details(self, episode_id, properties=None):
+    if properties is None:
+      properties = [
+          "cast", "showtitle", "plot",
+          "season", "tvshowid",
+          "firstaired", "art"
+      ]
+    return self.make_call("VideoLibrary.GetEpisodeDetails", {
+      "episodeid": episode_id,
+      "properties": properties
+    })
+
 
   def get_music_artists(self):
     return self.make_call("AudioLibrary.GetArtists")
@@ -174,13 +211,21 @@ class XBMC(object):
         return a
     return None
 
+  def find_movie(self, name):
+    name = name.lower()
+    d = self.get_movies()
+    for a in d["result"]["movies"]:
+      if a["label"].lower() == name:
+        return a
+    return None
+
   def get_show_season_episodes(self, showid):
-    d = self.get_tv_seasons(showid)
+    d = self.get_seasons(showid)
     result = []
     seasons = d["result"]["seasons"]
     for i in range(len(seasons)):
       season = seasons[i]
-      episodes = self.get_tv_episodes(showid, i + 1)  # 1 based wtf?
+      episodes = self.get_episodes(showid, i + 1)  # 1 based wtf?
       episodes = episodes["result"]["episodes"]
       season["episodes"] = episodes
       result.append(season)
