@@ -4,6 +4,7 @@ pyxbmc
 Python Library for working with the xbmc web api
 
 To Install:
+
     pip install -e git://github.com/scommab/pyxbmc.git#egg=pyxbmc
 
 Simple Usage:
