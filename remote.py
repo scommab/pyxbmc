@@ -24,14 +24,9 @@ parser = argparse.ArgumentParser(description="remote.py")
 parser.add_argument("host",
                     help="The XBMC host and port")
 parser.add_argument("command",
-                    help="The command to send")
+                    help="The command to send",
+                    choices=sorted(commands.keys()))
 args = parser.parse_args()
-if not args.command in commands:
-  print("Invalid Command")
-  print("Command List:")
-  for k in sorted(commands.keys()):
-    print("\t- %s" % k)
-  sys.exit()
 
 connection = xbmc.XBMC(args.host)
 r = getattr(connection, commands[args.command])()
