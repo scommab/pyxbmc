@@ -1,6 +1,7 @@
 import urllib2
 import urlparse
 import json
+import re
 
 
 def make_youtube_link(video_id):
@@ -93,12 +94,63 @@ class XBMC(object):
     })
 
 
-  def get_music_artists(self):
+  def get_artists(self):
     return self.make_call("AudioLibrary.GetArtists")
 
-  def get_music_album(self, artistid):
-    return self.make_call("AudioLibrary.GetAlbums", {
-      "filter": {"artistid": artistid}
+  def get_artist_details(self, artist_id, properties=[
+                                        "mood", "style",
+                                        "born", "formed", "died",
+                                        "disbanded",
+                                        "fanart", "thumbnail",
+                                        "yearsactive",
+                                        "genre"
+                                        ]):
+    return self.make_call("AudioLibrary.GetArtistDetails", {
+      "artistid": artist_id,
+      "properties": properties
+    })
+
+  def get_albums(self, artist_id=None):
+    params = {}
+    if not artist_id is None:
+      f = params.setdefault("filter", {})
+      f["artistid"] = artist_id
+    return self.make_call("AudioLibrary.GetAlbums", params)
+
+  def get_album_details(self, album_id, properties=[
+                                        "mood", "theme",
+                                        "fanart", "thumbnail",
+                                        "artist", "artistid",
+                                        "year", "rating",
+                                        "genre", "genreid"
+                                        ]):
+    return self.make_call("AudioLibrary.GetAlbumDetails", {
+      "albumid": album_id,
+      "properties": properties
+    })
+
+  def get_songs(self, artist_id=None, album_id=None):
+    params = {}
+    if not artist_id is None:
+      f = params.setdefault("filter", {})
+      f["artistid"] = artist_id
+    if not album_id is None:
+      f = params.setdefault("filter", {})
+      f["albumid"] = album_id
+    return self.make_call("AudioLibrary.GetSongs", params)
+
+  def get_song_details(self, song_id, properties=[
+                                        "album", "albumid",
+                                        "duration",
+                                        "track", "comment",
+                                        "fanart", "thumbnail",
+                                        "artist", "artistid",
+                                        "year", "rating",
+                                        "genre", "genreid"
+                                        ]):
+    return self.make_call("AudioLibrary.GetSongDetails", {
+      "songid": song_id,
+      "properties": properties
     })
 
   def clear_playlist(self, playlist):
@@ -187,29 +239,64 @@ class XBMC(object):
     d = self.play_item(playlist_id)
     return d["result"] == 'OK'
 
+  def _find(self, data, key, needle):
+    if not hasattr(needle, "match"):
+      needle = re.compile(needle, re.IGNORECASE)
+    return [i for i in data if needle.match(i[key])]
+
   def find_artist(self, name):
-    name = name.lower()
-    d = self.get_music_artists()
-    for a in d["result"]["artists"]:
-      if a["artist"].lower() == name:
-        return a
-    return None
+    """Find an artist using a regex.
+
+       If a string is passed to this function it will be converted in to
+       a case insensitive regex. If you want case sensitivity pass a regex.
+    """
+    d = self.get_artists()
+    return self._find(d["result"]["artists"], "artist", name)
+
+  def find_album(self, name):
+    """Find an artist using a regex.
+
+       If a string is passed to this function it will be converted in to
+       a case insensitive regex. If you want case sensitivity pass a regex.
+    """
+    d = self.get_albums()
+    return self._find(d["result"]["albums"], "label", name)
+
+  def find_song(self, name):
+    """Find an song using a regex.
+
+       If a string is passed to this function it will be converted in to
+       a case insensitive regex. If you want case sensitivity pass a regex.
+    """
+    d = self.get_songs()
+    return self._find(d["result"]["songs"], "label", name)
 
   def find_tv_show(self, name):
-    name = name.lower()
+    """Find an tv show using a regex.
+
+       If a string is passed to this function it will be converted in to
+       a case insensitive regex. If you want case sensitivity pass a regex.
+    """
     d = self.get_tv_shows()
-    for a in d["result"]["tvshows"]:
-      if a["label"].lower() == name:
-        return a
-    return None
+    return self._find(d["result"]["tvshows"], "label", name)
+
+  def find_episode(self, name):
+    """Find an episode using a regex.
+
+       If a string is passed to this function it will be converted in to
+       a case insensitive regex. If you want case sensitivity pass a regex.
+    """
+    d = self.get_episodes()
+    return self._find(d["result"]["episodes"], "label", name)
 
   def find_movie(self, name):
-    name = name.lower()
+    """Find an movie using a regex.
+
+       If a string is passed to this function it will be converted in to
+       a case insensitive regex. If you want case sensitivity pass a regex.
+    """
     d = self.get_movies()
-    for a in d["result"]["movies"]:
-      if a["label"].lower() == name:
-        return a
-    return None
+    return self._find(d["result"]["movies"], "label", name)
 
   def get_show_season_episodes(self, showid):
     d = self.get_seasons(showid)
