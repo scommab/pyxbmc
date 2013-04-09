@@ -46,13 +46,11 @@ class XBMC(object):
   def get_movies(self):
     return self.make_call("VideoLibrary.GetMovies")
 
-  def get_movie_details(self, movie_id, properties=None):
-    if properties is None:
-      properties = [
-          "plotoutline", "cast", "plot",
-          "mpaa", "rating",
-          "tagline", "art"
-      ]
+  def get_movie_details(self, movie_id, properties=[
+                                        "plotoutline", "cast", "plot",
+                                        "mpaa", "rating",
+                                        "tagline", "art"
+                                        ]):
     return self.make_call("VideoLibrary.GetMovieDetails", {
       "movieid": movie_id,
       "properties": properties
@@ -61,13 +59,11 @@ class XBMC(object):
   def get_tv_shows(self):
     return self.make_call("VideoLibrary.GetTVShows")
 
-  def get_tv_show_details(self, tvshow_id, properties=None):
-    if properties is None:
-      properties = [
-          "cast", "genre", "plot",
-          "mpaa", "rating",
-          "tag", "art"
-      ]
+  def get_tv_show_details(self, tvshow_id, properties=[
+                                           "cast", "genre", "plot",
+                                           "mpaa", "rating",
+                                           "tag", "art"
+                                           ]):
     return self.make_call("VideoLibrary.GetTVShowDetails", {
       "tvshowid": tvshow_id,
       "properties": properties
@@ -86,13 +82,11 @@ class XBMC(object):
       params["season"] = season
     return self.make_call("VideoLibrary.GetEpisodes", params)
 
-  def get_episode_details(self, episode_id, properties=None):
-    if properties is None:
-      properties = [
-          "cast", "showtitle", "plot",
-          "season", "tvshowid",
-          "firstaired", "art"
-      ]
+  def get_episode_details(self, episode_id, properties=[
+                                            "cast", "showtitle", "plot",
+                                            "season", "tvshowid",
+                                            "firstaired", "art"
+                                            ]):
     return self.make_call("VideoLibrary.GetEpisodeDetails", {
       "episodeid": episode_id,
       "properties": properties
@@ -133,13 +127,11 @@ class XBMC(object):
     return self.make_call("Player.Stop",
         {"playerid": player})
 
-  def get_player_properties(self, player, properties=None):
-    if properties is None:
-      properties = [
-        "speed", "playlistid",
-        "time", "totaltime",
-        "percentage"
-      ]
+  def get_player_properties(self, player, properties= [
+                                          "speed", "playlistid",
+                                          "time", "totaltime",
+                                          "percentage"
+                                          ]):
     return self.make_call("Player.GetProperties", {
       "playerid": player,
       "properties": properties
