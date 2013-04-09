@@ -15,4 +15,6 @@ Simple Usage:
     print connection.nav_left()
   
 
-See ``remote.py`` for an example XBMC command line remote
+For example usage see:
+* ``remote.py``: A simple XBMC command line remote
+* ``query.py``: An XBMC command line query tool
