@@ -93,7 +93,6 @@ class XBMC(object):
       "properties": properties
     })
 
-
   def get_artists(self):
     return self.make_call("AudioLibrary.GetArtists")
 
@@ -179,7 +178,7 @@ class XBMC(object):
     return self.make_call("Player.Stop",
         {"playerid": player})
 
-  def get_player_properties(self, player, properties= [
+  def get_player_properties(self, player, properties=[
                                           "speed", "playlistid",
                                           "time", "totaltime",
                                           "percentage"
