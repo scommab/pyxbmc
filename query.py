@@ -53,17 +53,6 @@ elif args.find is not None:
   elif args.type == "movies":
     show(connection.find_movie(args.find))
 elif args.details is not None:
-  if args.type == "artists":
-    show(connection.get_artist_details(args.details)["result"])
-  elif args.type == "albums":
-    show(connection.get_album_details(args.details)["result"])
-  elif args.type == "songs":
-    show(connection.get_song_details(args.details)["result"])
-  elif args.type == "shows":
-    show(connection.get_tv_show_details(args.details)["result"])
-  elif args.type == "episodes":
-    show(connection.get_episode_details(args.details)["result"])
-  elif args.type == "movies":
-    show(connection.get_movie_details(args.details)["result"])
+  show(connection.get_details(args.details, args.type))
 else:
   print "No action passed"

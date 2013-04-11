@@ -238,6 +238,27 @@ class XBMC(object):
     d = self.play_item(playlist_id)
     return d["result"] == 'OK'
 
+  def get_details(self, id, type):
+    if type == "artists":
+      r = self.get_artist_details(id)
+      return r["result"]["artistdetails"]
+    elif type == "albums":
+      r = self.get_album_details(id)
+      return r["result"]["albumdetails"]
+    elif type == "songs":
+      r = self.get_song_details(id)
+      return r["result"]["songdetails"]
+    elif type == "shows":
+      r = self.get_tv_show_details(id)
+      return r["result"]["tvshowdetails"]
+    elif type == "episodes":
+      r = self.get_episode_details(id)
+      return r["result"]["episodedetails"]
+    elif type == "movies":
+      r = self.get_movie_details(id)
+      return r["result"]["moviedetails"]
+    return None
+
   def _find(self, data, key, needle):
     if not hasattr(needle, "match"):
       needle = re.compile(needle, re.IGNORECASE)
