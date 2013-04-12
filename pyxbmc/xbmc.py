@@ -157,10 +157,22 @@ class XBMC(object):
       "playlistid": playlist
     })
 
-  def add_to_playlist(self, playlist, link):
+  def add_to_playlist_link(self, playlist, link):
     return self.make_call("Playlist.Add", {
       "playlistid": playlist,
       "item": {"file": link}
+    })
+
+  def add_to_playlist_episode(self, playlist, episode_id):
+    return self.make_call("Playlist.Add", {
+      "playlistid": playlist,
+      "item": {"episodeid": episode_id}
+    })
+
+  def add_to_playlist_movie(self, playlist, movie_id):
+    return self.make_call("Playlist.Add", {
+      "playlistid": playlist,
+      "item": {"movieid": movie_id}
     })
 
   def play_item(self, playlist, pos=1):
@@ -177,6 +189,11 @@ class XBMC(object):
   def player_stop(self, player):
     return self.make_call("Player.Stop",
         {"playerid": player})
+
+  def get_player_item(self, player):
+    return self.make_call("Player.GetItem", {
+      "playerid": player
+    })
 
   def get_player_properties(self, player, properties=[
                                           "speed", "playlistid",
@@ -223,18 +240,36 @@ class XBMC(object):
 
   # composite methods
 
+  def get_playlist_type(self, type):
+    d = self.get_playlists()
+    playlist_id = None
+    for playlist in d["result"]:
+      if playlist["type"] == type:
+        playlist_id = playlist["playlistid"]
+    return playlist_id
+
   def play_youtube(self, video_id):
     if "http" in video_id:
       # decode youtube url
       q = urlparse.parse_qs(urlparse.urlparse(video_id).query)
       video_id = q["v"][0]
-    d = self.get_playlists()
-    playlist_id = None
-    for playlist in d["result"]:
-      if playlist["type"] == "video":
-        playlist_id = playlist["playlistid"]
+    playlist_id = self.get_playlist_type("video")
     self.clear_playlist(playlist_id)
-    self.add_to_playlist(playlist_id, make_youtube_link(video_id))
+    self.add_to_playlist_link(playlist_id, make_youtube_link(video_id))
+    d = self.play_item(playlist_id)
+    return d["result"] == 'OK'
+
+  def play_episode(self, episode_id):
+    playlist_id = self.get_playlist_type("video")
+    self.clear_playlist(playlist_id)
+    self.add_to_playlist_episode(playlist_id, episode_id)
+    d = self.play_item(playlist_id)
+    return d["result"] == 'OK'
+
+  def play_movie(self, movie_id):
+    playlist_id = self.get_playlist_type("video")
+    self.clear_playlist(playlist_id)
+    self.add_to_playlist_movie(playlist_id, movie_id)
     d = self.play_item(playlist_id)
     return d["result"] == 'OK'
 
@@ -339,12 +374,15 @@ class XBMC(object):
     props = self.get_player_properties(player_id, ["speed"])
     return props["result"]["speed"] != 0
 
+  def get_player_id(self):
+    d = self.get_active_players()
+    if not "result" in d or len(d["result"]) == 0:
+      return None
+    return d["result"][0]["playerid"]
+
   def play(self, player_id=None):
     if player_id is None:
-      d = self.get_active_players()
-      if not "result" in d or len(d["result"]) == 0:
-        return None
-      player_id = d["result"][0]["playerid"]
+      player_id = self.get_player_id()
     if self.is_playing(player_id):
       return True
     d = self.player_play_pause(player_id)
@@ -352,10 +390,7 @@ class XBMC(object):
 
   def pause(self, player_id=None):
     if player_id is None:
-      d = self.get_active_players()
-      if not "result" in d or len(d["result"]) == 0:
-        return None
-      player_id = d["result"][0]["playerid"]
+      player_id = self.get_player_id()
     if not self.is_playing(player_id):
       return True
     d = self.player_play_pause(player_id)
@@ -363,10 +398,6 @@ class XBMC(object):
 
   def stop(self, player_id=None):
     if player_id is None:
-      d = self.get_active_players()
-      if not (d["result"] and len(d["result"]) > 0):
-        player_id = d["result"][0]["playerid"]
-      else:
-        return None
+      player_id = self.get_player_id()
     d = self.player_stop(player_id)
     return d["result"] == "OK"
